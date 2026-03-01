@@ -1,0 +1,56 @@
+theme: dark
+
+server:
+  address: "tcp://0.0.0.0:9091"
+
+log:
+  level: info
+  format: json
+
+totp:
+  issuer: "{{ env "DOMAIN" }}"
+  algorithm: SHA256
+  digits: 6
+  period: 30
+
+authentication_backend:
+  file:
+    path: /data/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 3
+      memory: 65536
+      parallelism: 4
+      key_length: 32
+      salt_length: 16
+
+access_control:
+  default_policy: one_factor
+
+  rules:
+    - domain: "auth.{{ env "DOMAIN" }}"
+      policy: bypass
+
+session:
+  cookies:
+    - domain: "{{ env "DOMAIN" }}"
+      authelia_url: "https://auth.{{ env "DOMAIN" }}"
+      default_redirection_url: "https://{{ env "DOMAIN" }}"
+      name: authelia_session
+      same_site: lax
+      inactivity: 15m
+      expiration: 4h
+      remember_me: 1M
+
+regulation:
+  max_retries: 3
+  find_time: 5m
+  ban_time: 30m
+
+storage:
+  local:
+    path: /data/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /data/notifications.txt

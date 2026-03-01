@@ -1,0 +1,114 @@
+http:
+  middlewares:
+    security-headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 63072000
+        customFrameOptionsValue: "SAMEORIGIN"
+        referrerPolicy: "strict-origin-when-cross-origin"
+        customResponseHeaders:
+          Server: ""
+          X-Powered-By: ""
+          X-Robots-Tag: "noindex, nofollow, nosnippet, noarchive, noimageindex, notranslate, max-snippet:-1, max-image-preview:none, max-video-preview:-1"
+          Permissions-Policy: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), interest-cohort=()"
+          contentSecurityPolicy: >-
+            default-src 'self';
+            script-src 'self';
+            style-src 'self' 'unsafe-inline';
+            img-src 'self' data: https:;
+            font-src 'self';
+            form-action 'self';
+            frame-ancestors 'self';
+            base-uri 'self';
+            object-src 'none';
+            upgrade-insecure-requests;
+
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 200
+        period: 1s
+
+    crowdsec:
+      plugin:
+        crowdsec-bouncer:
+          enabled: true
+          crowdsecLapiScheme: http
+          crowdsecLapiHost: "crowdsec:8080"
+          crowdsecLapiKey: '{{ env "CROWDSEC_BOUNCER_API_KEY" }}'
+          crowdsecMode: stream
+          updateIntervalSeconds: 15
+          crowdsecAppsecEnabled: true
+          crowdsecAppsecHost: "crowdsec:7422"
+          crowdsecAppsecFailureBlock: true
+          crowdsecAppsecUnreachableBlock: false
+          forwardedHeadersTrustedIPs:
+            - "10.0.0.0/8"
+            - "172.16.0.0/12"
+            - "192.168.0.0/16"
+
+    geoblock:
+      plugin:
+        geoblock:
+          allowLocalRequests: true
+          allowCountries:
+            - RU
+          api: https://get.geojs.io/v1/ip/country/{ip}
+          cacheSize: 15
+          forceMonthlyUpdate: true
+          logLocalRequests: false
+          logAllowedRequests: false
+          logApiRequests: false
+          unknownCountryApiResponse: "nil"
+
+    authelia:
+      forwardAuth:
+        address: "http://authelia:9091/api/authz/forward-auth"
+        trustForwardHeader: true
+        maxResponseBodySize: 10485760
+        authResponseHeaders:
+          - Remote-User
+          - Remote-Groups
+          - Remote-Email
+          - Remote-Name
+
+    local-only:
+      ipAllowList:
+        sourceRange:
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+          - "192.168.0.0/16"
+
+    # =========================================================================
+    # Chains
+    # =========================================================================
+    # Base security (applied at entrypoint level — all routers get this)
+    chain-base:
+      chain:
+        middlewares:
+          - security-headers
+          - rate-limit
+          - crowdsec
+
+    # External access with geo-filtering + Authelia 2FA
+    chain-auth:
+      chain:
+        middlewares:
+          - geoblock
+          - authelia
+
+    # LAN-only access (no auth)
+    chain-local:
+      chain:
+        middlewares:
+          - local-only
+
+    # LAN-only access + Authelia 2FA
+    chain-auth-local:
+      chain:
+        middlewares:
+          - local-only
+          - authelia

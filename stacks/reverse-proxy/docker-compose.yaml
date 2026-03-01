@@ -1,0 +1,118 @@
+networks:
+  proxy:
+    name: proxy
+    external: true
+  socket_proxy:
+    name: socket_proxy
+    driver: bridge
+    internal: true
+  crowdsec:
+    name: crowdsec
+    driver: bridge
+    internal: true
+  crowdsec_net:
+    name: crowdsec_net
+    driver: bridge
+
+services:
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:3.2.13
+    container_name: socket-proxy
+    restart: unless-stopped
+    networks:
+      - socket_proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=Europe/Kaliningrad
+      - CONTAINERS=1
+      - SERVICES=1
+      - TASKS=1
+      - NETWORKS=1
+    read_only: true
+    tmpfs:
+      - /run
+    security_opt:
+      - no-new-privileges:true
+
+  traefik:
+    image: traefik:v3.6.9
+    container_name: traefik
+    restart: unless-stopped
+    depends_on:
+      - socket-proxy
+      - crowdsec
+    networks:
+      - proxy
+      - socket_proxy
+      - crowdsec
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - /mnt/docker-volumes/traefik/acme:/acme
+      - /mnt/docker-volumes/traefik/logs:/var/log/traefik
+    environment:
+      - TZ=Europe/Kaliningrad
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - DOMAIN=${DOMAIN}
+      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ACME_EMAIL}
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_MAIN=${DOMAIN}
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_SANS=*.${DOMAIN}
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.middlewares=chain-auth-local@file"
+
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.7.6
+    container_name: crowdsec
+    restart: unless-stopped
+    networks:
+      - crowdsec
+      - crowdsec_net
+    volumes:
+      - ./crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml:ro
+      - /mnt/docker-volumes/traefik/logs:/var/log/traefik:ro
+      - /mnt/docker-volumes/crowdsec/data:/var/lib/crowdsec/data
+      - /mnt/docker-volumes/crowdsec/config:/etc/crowdsec
+    environment:
+      - TZ=Europe/Kaliningrad
+      - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/appsec-generic-rules crowdsecurity/appsec-virtual-patching
+      - BOUNCER_KEY_traefik=${CROWDSEC_BOUNCER_API_KEY}
+      - GID=1000
+      - ENROLL_KEY=${CROWDSEC_ENROLL_KEY}
+      - ENROLL_INSTANCE_NAME=homelab
+    security_opt:
+      - no-new-privileges:true
+
+  authelia:
+    image: authelia/authelia:4.39.15
+    container_name: authelia
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    volumes:
+      - ./authelia/configuration.yml:/config/configuration.yml:ro
+      - /mnt/docker-volumes/authelia:/data
+    environment:
+      - TZ=Europe/Kaliningrad
+      - X_AUTHELIA_CONFIG_FILTERS=template
+      - AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET=${AUTHELIA_JWT_SECRET}
+      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+      - DOMAIN=${DOMAIN}
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`auth.${DOMAIN}`)"
+      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
