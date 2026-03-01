@@ -14,23 +14,15 @@ http:
           X-Powered-By: ""
           X-Robots-Tag: "noindex, nofollow, nosnippet, noarchive, noimageindex, notranslate, max-snippet:-1, max-image-preview:none, max-video-preview:-1"
           Permissions-Policy: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), interest-cohort=()"
-          contentSecurityPolicy: >-
-            default-src 'self';
-            script-src 'self';
-            style-src 'self' 'unsafe-inline';
-            img-src 'self' data: https:;
-            font-src 'self';
-            form-action 'self';
-            frame-ancestors 'self';
-            base-uri 'self';
-            object-src 'none';
-            upgrade-insecure-requests;
 
     rate-limit:
       rateLimit:
-        average: 100
-        burst: 200
+        average: 50
+        burst: 100
         period: 1s
+        sourceCriterion:
+          ipStrategy:
+            depth: 0
 
     crowdsec:
       plugin:
@@ -44,7 +36,7 @@ http:
           crowdsecAppsecEnabled: true
           crowdsecAppsecHost: "crowdsec:7422"
           crowdsecAppsecFailureBlock: true
-          crowdsecAppsecUnreachableBlock: false
+          crowdsecAppsecUnreachableBlock: true
           forwardedHeadersTrustedIPs:
             - "10.0.0.0/8"
             - "172.16.0.0/12"
@@ -57,7 +49,7 @@ http:
           allowCountries:
             - RU
           api: https://get.geojs.io/v1/ip/country/{ip}
-          cacheSize: 15
+          cacheSize: 1000
           forceMonthlyUpdate: true
           logLocalRequests: false
           logAllowedRequests: false

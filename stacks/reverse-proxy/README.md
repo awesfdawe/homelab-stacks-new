@@ -309,8 +309,11 @@ traefik/
 | Сетевая изоляция | Internal-сети для socket_proxy и crowdsec |
 | Привилегии | `no-new-privileges` на всех контейнерах |
 | TLS | Минимум TLS 1.2, только сильные cipher suites, HSTS с preload |
-| Заголовки | CSP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy |
+| Заголовки | X-Content-Type-Options, Referrer-Policy, Permissions-Policy |
+| Rate-limit | 50 rps / burst 100 per IP (`sourceCriterion.ipStrategy`) |
 | Брутфорс | Authelia: 3 попытки / 5 мин → бан на 30 мин |
 | IPS | CrowdSec анализирует access log, блокирует по crowd-sourced спискам |
-| Geo-blocking | Плагин geoblock — разрешён только трафик из RU |
+| WAF | CrowdSec AppSec — fail-close при недоступности (`crowdsecAppsecUnreachableBlock: true`) |
+| Geo-blocking | Плагин geoblock — разрешён только трафик из RU (включая портал Authelia) |
+| Healthcheck | Все контейнеры (traefik, crowdsec, authelia) с healthcheck |
 | Секреты | `.env` + `.gitignore`, никаких паролей в коде |

@@ -26,8 +26,6 @@ services:
     environment:
       - TZ=Europe/Kaliningrad
       - CONTAINERS=1
-      - SERVICES=1
-      - TASKS=1
       - NETWORKS=1
     read_only: true
     tmpfs:
@@ -40,8 +38,10 @@ services:
     container_name: traefik
     restart: unless-stopped
     depends_on:
-      - socket-proxy
-      - crowdsec
+      socket-proxy:
+        condition: service_started
+      crowdsec:
+        condition: service_healthy
     networks:
       - proxy
       - socket_proxy
@@ -64,6 +64,11 @@ services:
       - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_SANS=*.${DOMAIN}
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN}`)"
@@ -91,13 +96,19 @@ services:
       - ENROLL_INSTANCE_NAME=homelab
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "cscli", "version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   authelia:
     image: authelia/authelia:4.39.15
     container_name: authelia
     restart: unless-stopped
     depends_on:
-      - traefik
+      traefik:
+        condition: service_healthy
     networks:
       - proxy
     volumes:
@@ -112,7 +123,13 @@ services:
       - DOMAIN=${DOMAIN}
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "authelia", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.authelia.rule=Host(`auth.${DOMAIN}`)"
+      - "traefik.http.routers.authelia.middlewares=geoblock@file"
       - "traefik.http.services.authelia.loadbalancer.server.port=9091"
