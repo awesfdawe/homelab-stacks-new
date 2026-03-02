@@ -42,7 +42,7 @@ http:
       plugin:
         geoblock:
           allowLocalRequests: true
-          allowCountries:
+          countries:
             - RU
           api: https://get.geojs.io/v1/ip/country/{ip}
           cacheSize: 1000

@@ -26,7 +26,7 @@ services:
     environment:
       - TZ=Europe/Kaliningrad
       - CONTAINERS=1
-      - NETWORKS=1
+      - EVENTS=1
     read_only: true
     tmpfs:
       - /run
@@ -75,7 +75,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
-      - "traefik.http.routers.traefik-dashboard.middlewares=chain-auth-local@file"
+      - "traefik.http.routers.traefik-dashboard.middlewares=chain-local@file"
 
   crowdsec:
     image: crowdsecurity/crowdsec:v1.7.6
@@ -128,7 +128,7 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD", "authelia", "healthcheck"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:9091/api/health || exit 1"]
       interval: 30s
       start_period: 30s
       start_interval: 5s
