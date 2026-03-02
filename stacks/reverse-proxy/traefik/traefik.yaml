@@ -55,7 +55,7 @@ certificatesResolvers:
           - "8.8.8.8:53"
 
 log:
-  level: DEBUG
+  level: info
   format: json
 
 accessLog:
