@@ -67,6 +67,7 @@ services:
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 30s
+      start_interval: 5s
       timeout: 5s
       retries: 3
     labels:
@@ -99,6 +100,7 @@ services:
     healthcheck:
       test: ["CMD", "cscli", "version"]
       interval: 30s
+      start_interval: 5s
       timeout: 5s
       retries: 3
 
@@ -126,6 +128,7 @@ services:
     healthcheck:
       test: ["CMD", "authelia", "healthcheck"]
       interval: 30s
+      start_interval: 5s
       timeout: 5s
       retries: 3
     labels:
