@@ -91,7 +91,7 @@ services:
       - /mnt/docker-volumes/crowdsec/config:/etc/crowdsec
     environment:
       - TZ=Europe/Kaliningrad
-      - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios
+      - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs
       - BOUNCER_KEY_traefik=${CROWDSEC_BOUNCER_API_KEY}
       - GID=1000
       - ENROLL_KEY=${CROWDSEC_ENROLL_KEY}

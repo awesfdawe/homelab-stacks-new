@@ -32,6 +32,8 @@ http:
           crowdsecLapiHost: "crowdsec:8080"
           crowdsecLapiKey: '{{ env "CROWDSEC_BOUNCER_API_KEY" }}'
           crowdsecMode: stream
+          crowdsecAppsecEnabled: true
+          crowdsecAppsecHost: "crowdsec:7422"
           updateIntervalSeconds: 15
           forwardedHeadersTrustedIPs:
             - "10.0.0.0/8"
