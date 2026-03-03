@@ -38,8 +38,8 @@ session:
       default_redirection_url: "https://{{ env "DOMAIN" }}"
       name: authelia_session
       same_site: lax
-      inactivity: 15m
-      expiration: 4h
+      inactivity: 2d
+      expiration: 14d
       remember_me: 1M
 
 regulation:
