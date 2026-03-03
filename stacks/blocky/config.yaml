@@ -1,0 +1,52 @@
+ports:
+  dns: 53
+
+log:
+  level: info
+
+connectIPVersion: v4
+
+upstreams:
+  groups:
+    default:
+      - tcp-tls:cloudflare-dns.com
+      - tcp-tls:dns.google
+      - tcp-tls:dns.quad9.net
+      - https://cloudflare-dns.com/dns-query
+      - https://dns.google/dns-query
+      - https://dns.quad9.net/dns-query
+  strategy: parallel_best
+
+bootstrapDns:
+  - upstream: tcp-tls:cloudflare-dns.com
+    ips:
+      - 1.1.1.1
+  - upstream: https://cloudflare-dns.com/dns-query
+    ips:
+      - 1.1.1.1
+  - upstream: tcp-tls:dns.google
+    ips:
+      - 8.8.8.8
+  - upstream: https://dns.google/dns-query
+    ips:
+      - 8.8.8.8
+  - upstream: tcp-tls:dns.quad9.net
+    ips:
+      - 9.9.9.9
+  - upstream: https://dns.quad9.net/dns-query
+    ips:
+      - 9.9.9.9
+
+blocking:
+  denylists:
+    ads:
+      - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/pro.txt
+    tif:
+      - https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/tif.txt
+
+  clientGroupsBlock:
+    default:
+      - ads
+      - tif
+
+  blockType: zeroIp

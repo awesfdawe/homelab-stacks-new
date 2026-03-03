@@ -1,0 +1,14 @@
+services:
+  blocky:
+    container_name: blocky
+    image: spx01/blocky:v0.29.0
+    restart: unless-stopped
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    volumes:
+      - ./config.yaml:/app/config.yml:ro
+    environment:
+      - TZ=Europe/Kaliningrad
+    security_opt:
+      - no-new-privileges:true

@@ -116,7 +116,7 @@ services:
     networks:
       - proxy
     volumes:
-      - ./authelia/configuration.yml:/config/configuration.yml:ro
+      - ./authelia/configuration.yaml:/config/configuration.yml:ro
       - /mnt/docker-volumes/authelia:/data
     environment:
       - TZ=Europe/Kaliningrad
