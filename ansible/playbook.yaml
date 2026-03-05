@@ -1,0 +1,56 @@
+- name: Deploy homelab stacks
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars.yaml
+
+  vars:
+    stacks_dir: "{{ playbook_dir }}/../stacks"
+    stacks:
+      - name: reverse-proxy
+        volumes:
+          - /mnt/docker-volumes/traefik/acme
+          - /mnt/docker-volumes/traefik/logs
+          - /mnt/docker-volumes/crowdsec/data
+          - /mnt/docker-volumes/crowdsec/config
+          - /mnt/docker-volumes/authelia
+
+      - name: blocky
+
+  tasks:
+    # ==========================================================================
+    # Infrastructure
+    # ==========================================================================
+    - name: Ensure /mnt/docker-volumes exists
+      ansible.builtin.file:
+        path: /mnt/docker-volumes
+        state: directory
+        owner: "1000"
+        group: "1000"
+        mode: "0750"
+      tags: [infra, always]
+
+    - name: Ensure Docker networks exist
+      ansible.builtin.command:
+        cmd: "docker network create {{ item }}"
+      loop:
+        - proxy
+      register: network_result
+      changed_when: network_result.rc == 0
+      failed_when: network_result.rc != 0 and 'already exists' not in network_result.stderr
+      tags: [infra, always]
+
+    # ==========================================================================
+    # Deploy stacks
+    # ==========================================================================
+    - name: Deploy {{ stack.name }}
+      ansible.builtin.include_tasks:
+        file: tasks/deploy_stack.yaml
+        apply:
+          tags: "{{ stack.name }}"
+      loop: "{{ stacks }}"
+      loop_control:
+        loop_var: stack
+        label: "{{ stack.name }}"
+      tags: always

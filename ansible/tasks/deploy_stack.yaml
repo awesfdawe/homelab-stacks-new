@@ -1,0 +1,21 @@
+- name: Ensure volume directories exist for {{ stack.name }}
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "1000"
+    group: "1000"
+    mode: "0750"
+  loop: "{{ stack.volumes | default([]) }}"
+
+- name: Template .env for {{ stack.name }}
+  ansible.builtin.template:
+    src: "{{ stacks_dir }}/{{ stack.name }}/.env.j2"
+    dest: "{{ stacks_dir }}/{{ stack.name }}/.env"
+    mode: "0600"
+    owner: "1000"
+    group: "1000"
+
+- name: Deploy {{ stack.name }}
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ stacks_dir }}/{{ stack.name }}"
