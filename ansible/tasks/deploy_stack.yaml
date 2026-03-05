@@ -9,7 +9,7 @@
 
 - name: Set default excludes
   ansible.builtin.set_fact:
-    base_excludes: 
+    base_excludes:
       - "docker-compose.yaml"
       - "docker-compose.yml"
       - "compose.yaml"
@@ -21,11 +21,12 @@
     patterns: "*.yml,*.yaml,*.json,*.toml"
     recurse: yes
     excludes: "{{ base_excludes + (stack.config_excludes | default([])) }}"
+    get_checksum: yes
   register: config_files
 
 - name: Generate unified config hash
   ansible.builtin.set_fact:
-    stack_config_hash: "{{ config_files.files | map(attribute='path') | sort | map('hash', 'sha1') | join('') | hash('sha1') }}"
+    stack_config_hash: "{{ config_files.files | map(attribute='checksum') | sort | join('') | hash('sha1') }}"
   when: config_files.matched > 0
 
 - name: Template .env for {{ stack.name }}
@@ -36,14 +37,42 @@
     owner: "1000"
     group: "1000"
 
-- name: Append config hashes to .env
-  ansible.builtin.lineinfile:
-    path: "{{ stacks_dir }}/{{ stack.name }}/.env"
-    line: "CONFIG_HASH={{ stack_config_hash | default('none') }}"
-    regexp: "^CONFIG_HASH="
-    insertafter: EOF
+- name: Check if .config_hash exists
+  ansible.builtin.stat:
+    path: "{{ stacks_dir }}/{{ stack.name }}/.config_hash"
+  register: config_hash_stat
+
+- name: Read previous config hash
+  ansible.builtin.slurp:
+    src: "{{ stacks_dir }}/{{ stack.name }}/.config_hash"
+  register: previous_hash_file
+  when: config_hash_stat.stat.exists
+
+- name: Extract previous hash
+  ansible.builtin.set_fact:
+    previous_config_hash: "{{ (previous_hash_file.content | b64decode | trim) if config_hash_stat.stat.exists else 'none' }}"
 
 - name: Deploy {{ stack.name }}
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ stacks_dir }}/{{ stack.name }}"
+  register: compose_up
+  changed_when:
+    - >
+      'Created' in compose_up.stdout or 'Recreated' in compose_up.stdout or 'Started' in compose_up.stdout or
+      'Created' in compose_up.stderr or 'Recreated' in compose_up.stderr or 'Started' in compose_up.stderr
+
+- name: Restart {{ stack.name }} on config change
+  ansible.builtin.command:
+    cmd: docker compose restart
+    chdir: "{{ stacks_dir }}/{{ stack.name }}"
+  when: stack_config_hash | default('none') != previous_config_hash # TODO: maybe better way exist
+
+- name: Save new config hash
+  ansible.builtin.copy:
+    content: "{{ stack_config_hash | default('none') }}"
+    dest: "{{ stacks_dir }}/{{ stack.name }}/.config_hash"
+    mode: "0600"
+    owner: "1000"
+    group: "1000"
+  when: stack_config_hash | default('none') != previous_config_hash

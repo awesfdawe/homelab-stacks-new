@@ -119,7 +119,7 @@ services:
       - ./authelia/configuration.yaml:/config/configuration.yml:ro
       - /mnt/docker-volumes/authelia:/data
     environment:
-      - TZ=Europe/Kaliningrad
+      - TZ=${TZ}
       - X_AUTHELIA_CONFIG_FILTERS=template
       - AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET=${AUTHELIA_JWT_SECRET}
       - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
@@ -143,7 +143,3 @@ services:
       - "traefik.http.routers.authelia.rule=Host(`auth.${DOMAIN}`)"
       - "traefik.http.routers.authelia.middlewares=geoblock@file"
       - "traefik.http.services.authelia.loadbalancer.server.port=9091"
-
-x-config-hashes:
-  # This section helps Ansible detect changes in bound configuration files
-  hash: ${CONFIG_HASH:-none}
