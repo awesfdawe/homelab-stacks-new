@@ -9,6 +9,9 @@
     stacks_dir: "{{ playbook_dir }}/../stacks"
     stacks:
       - name: reverse-proxy
+        config_excludes:
+          - "users_database.yml"
+          - "dynamic"
         volumes:
           - /mnt/docker-volumes/traefik/acme
           - /mnt/docker-volumes/traefik/logs
@@ -44,7 +47,7 @@
     # ==========================================================================
     # Deploy stacks
     # ==========================================================================
-    - name: Deploy {{ stack.name }}
+    - name: Deploy stack
       ansible.builtin.include_tasks:
         file: tasks/deploy_stack.yaml
         apply:

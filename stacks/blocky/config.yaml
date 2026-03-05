@@ -2,7 +2,7 @@ ports:
   dns: 53
 
 log:
-  level: info
+  level: warn
 
 connectIPVersion: v4
 

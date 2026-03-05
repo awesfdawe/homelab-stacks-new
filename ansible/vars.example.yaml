@@ -5,8 +5,12 @@
 #   cp vars.example.yaml vars.yaml
 
 # Shared
-domain: "example.com"
 timezone: "Europe/Kaliningrad"
+domain: "example.com"
+
+# =============================================================================
+# Reverse Proxy
+# =============================================================================
 
 # Traefik
 cf_dns_api_token: "changeme"

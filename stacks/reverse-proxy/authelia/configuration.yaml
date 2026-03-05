@@ -16,6 +16,7 @@ totp:
 authentication_backend:
   file:
     path: /data/users_database.yml
+    watch: true
     password:
       algorithm: argon2id
       iterations: 3

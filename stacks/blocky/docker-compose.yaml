@@ -9,6 +9,6 @@ services:
     volumes:
       - ./config.yaml:/app/config.yml:ro
     environment:
-      - TZ=Europe/Kaliningrad
+      - TZ=${TZ}
     security_opt:
       - no-new-privileges:true

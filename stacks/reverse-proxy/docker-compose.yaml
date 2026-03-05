@@ -24,7 +24,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - TZ=Europe/Kaliningrad
+      - TZ=${TZ}
       - CONTAINERS=1
       - EVENTS=1
     read_only: true
@@ -55,7 +55,7 @@ services:
       - /mnt/docker-volumes/traefik/acme:/acme
       - /mnt/docker-volumes/traefik/logs:/var/log/traefik
     environment:
-      - TZ=Europe/Kaliningrad
+      - TZ=${TZ}
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
       - DOMAIN=${DOMAIN}
       - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
@@ -90,7 +90,7 @@ services:
       - /mnt/docker-volumes/crowdsec/data:/var/lib/crowdsec/data
       - /mnt/docker-volumes/crowdsec/config:/etc/crowdsec
     environment:
-      - TZ=Europe/Kaliningrad
+      - TZ=${TZ}
       - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs
       - BOUNCER_KEY_traefik=${CROWDSEC_BOUNCER_API_KEY}
       - GID=1000
@@ -128,7 +128,11 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:9091/api/health || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://127.0.0.1:9091/api/health || exit 1",
+        ]
       interval: 30s
       start_period: 30s
       start_interval: 5s
@@ -139,3 +143,7 @@ services:
       - "traefik.http.routers.authelia.rule=Host(`auth.${DOMAIN}`)"
       - "traefik.http.routers.authelia.middlewares=geoblock@file"
       - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+
+x-config-hashes:
+  # This section helps Ansible detect changes in bound configuration files
+  hash: ${CONFIG_HASH:-none}
