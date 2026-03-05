@@ -75,7 +75,8 @@ http:
     # =========================================================================
     # Chains
     # =========================================================================
-    # Base security (applied at entrypoint level — all routers get this)
+    
+    # Base security (applied at entrypoint level - all routers get this)
     chain-base:
       chain:
         middlewares:
@@ -83,7 +84,7 @@ http:
           - rate-limit
           - crowdsec
 
-    # External access with geo-filtering + Authelia 2FA
+    # External access with geo-filtering + Authelia
     chain-auth:
       chain:
         middlewares:
@@ -96,7 +97,7 @@ http:
         middlewares:
           - local-only
 
-    # LAN-only access + Authelia 2FA
+    # LAN-only access + Authelia
     chain-auth-local:
       chain:
         middlewares:
