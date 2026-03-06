@@ -1,17 +1,10 @@
 networks:
   proxy:
-    name: proxy
     external: true
   socket_proxy:
-    name: socket_proxy
     driver: bridge
     internal: true
   crowdsec:
-    name: crowdsec
-    driver: bridge
-    internal: true
-  crowdsec_net:
-    name: crowdsec_net
     driver: bridge
 
 services:
@@ -83,7 +76,6 @@ services:
     restart: unless-stopped
     networks:
       - crowdsec
-      - crowdsec_net
     volumes:
       - ./crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml:ro
       - /mnt/docker-volumes/traefik/logs:/var/log/traefik:ro
