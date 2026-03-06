@@ -17,8 +17,8 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.authelia.rule=Host(`vw.${DOMAIN}`)"
-      - "traefik.http.routers.authelia.middlewares=chain-local@file"
-      - "traefik.http.services.authelia.loadbalancer.server.port=80"
+      - "traefik.http.routers.vaultwarden.rule=Host(`vw.${DOMAIN}`)"
+      - "traefik.http.routers.vaultwarden.middlewares=chain-local@file"
+      - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
     security_opt:
       - no-new-privileges:true
