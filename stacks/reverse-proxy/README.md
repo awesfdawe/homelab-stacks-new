@@ -1,0 +1,1 @@
+TODO: Описать .env, labels, упомянуть про запрет использования cloudflare cdn

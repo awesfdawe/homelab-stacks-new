@@ -1,0 +1,24 @@
+networks:
+  proxy:
+    external: true
+
+services:
+  vaultwarden:
+    container_name: vaultwarden
+    image: vaultwarden/server:1.35.4
+    restart: unless-stopped
+    volumes:
+      - /mnt/docker-volumes/vaultwarden:/data
+    environment:
+      - DOMAIN=https://${DOMAIN}
+      - SIGNUPS_ALLOWED=false
+      - INVITATIONS_ALLOWED=false
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`vw.${DOMAIN}`)"
+      - "traefik.http.routers.authelia.middlewares=chain-local@file"
+      - "traefik.http.services.authelia.loadbalancer.server.port=80"
+    security_opt:
+      - no-new-privileges:true

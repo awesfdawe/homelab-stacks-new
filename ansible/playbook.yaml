@@ -21,6 +21,10 @@
 
       - name: blocky
 
+      - name: vaultwarden
+        volumes:
+          - /mnt/docker-volumes/vaultwarden
+
   tasks:
     # ==========================================================================
     # Infrastructure
