@@ -1,11 +1,20 @@
-- name: Ensure volume directories exist for {{ stack.name }}
-  ansible.builtin.file:
+- name: Check if volume directories exist for {{ stack.name }}
+  ansible.builtin.stat:
     path: "{{ item }}"
+  loop: "{{ stack.volumes | default([]) }}"
+  register: volume_dirs
+
+- name: Create volume directories for {{ stack.name }}
+  ansible.builtin.file:
+    path: "{{ item.item }}"
     state: directory
     owner: "1000"
     group: "1000"
     mode: "0750"
-  loop: "{{ stack.volumes | default([]) }}"
+  loop: "{{ volume_dirs.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not item.stat.exists
 
 - name: Set default excludes
   ansible.builtin.set_fact:

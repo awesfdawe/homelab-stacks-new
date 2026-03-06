@@ -17,8 +17,8 @@ http:
 
     rate-limit:
       rateLimit:
-        average: 25
-        burst: 50
+        average: 100
+        burst: 200
         period: 1s
         sourceCriterion:
           ipStrategy:

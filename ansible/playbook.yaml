@@ -25,6 +25,10 @@
         volumes:
           - /mnt/docker-volumes/vaultwarden
 
+      - name: remnawave
+        volumes:
+          - /mnt/docker-volumes/remnawave
+
   tasks:
     # ==========================================================================
     # Infrastructure

@@ -14,7 +14,7 @@ domain: "example.com"
 
 # Traefik
 cf_dns_api_token: "changeme"
-acme_email: "admin@example.com"
+acme_email: "changeme@changeme.com"
 
 # CrowdSec
 crowdsec_bouncer_api_key: "changeme"
@@ -24,3 +24,14 @@ crowdsec_enroll_key: "changeme"
 authelia_jwt_secret: "changeme"
 authelia_session_secret: "changeme"
 authelia_storage_encryption_key: "changeme"
+
+# =============================================================================
+# Remnawave
+# =============================================================================
+
+remnawave_subdomain: "changeme"
+remnawave_subscription_page_subdomain: "changeme"
+remnawave_subscription_page_prefix: "changeme"
+remnawave_jwt_auth_secret: "changeme"
+remnawave_api_tokens_secret: "changeme"
+remnawave_api_token: "changeme"
