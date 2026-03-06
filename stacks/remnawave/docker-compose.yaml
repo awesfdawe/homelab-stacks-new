@@ -69,7 +69,7 @@ services:
 
   remnawave-redis:
     container_name: remnawave-redis
-    image: valkey/valkey:8.1.5-alpine
+    image: valkey/valkey:8.1.6-alpine
     restart: unless-stopped
     networks:
       - internal
