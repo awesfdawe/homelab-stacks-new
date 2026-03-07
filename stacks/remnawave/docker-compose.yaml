@@ -8,7 +8,7 @@ networks:
 services:
   remnawave-database:
     container_name: remnawave-database
-    image: postgres:17.7
+    image: postgres:17.9
     restart: unless-stopped
     volumes:
       - /mnt/docker-volumes/remnawave:/var/lib/postgresql/data
