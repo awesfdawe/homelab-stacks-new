@@ -85,7 +85,7 @@ services:
 
   remnawave-subscription-page:
     container_name: remnawave-subscription-page
-    image: remnawave/subscription-page:7.1.7
+    image: remnawave/subscription-page:7.1.8
     restart: unless-stopped
     depends_on:
       remnawave:
