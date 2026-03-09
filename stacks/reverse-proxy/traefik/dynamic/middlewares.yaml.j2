@@ -30,7 +30,7 @@ http:
           enabled: true
           crowdsecLapiScheme: http
           crowdsecLapiHost: "crowdsec:8080"
-          crowdsecLapiKey: '{{ env "CROWDSEC_BOUNCER_API_KEY" }}'
+          crowdsecLapiKey: '{{ crowdsec_bouncer_api_key }}'
           crowdsecMode: stream
           crowdsecAppsecEnabled: true
           crowdsecAppsecHost: "crowdsec:7422"
@@ -44,6 +44,12 @@ http:
       plugin:
         geoblock:
           allowLocalRequests: true
+{% if geoblock_allowed_ips is defined and geoblock_allowed_ips | length > 0 %}
+          allowedIPAddresses:
+{% for ip in geoblock_allowed_ips %}
+            - {{ ip }}
+{% endfor %}
+{% endif %}
           countries:
             - RU
           api: https://get.geojs.io/v1/ip/country/{ip}

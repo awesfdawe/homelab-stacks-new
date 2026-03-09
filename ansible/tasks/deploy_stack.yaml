@@ -16,6 +16,17 @@
     label: "{{ item.item }}"
   when: not item.stat.exists
 
+- name: Render config templates for {{ stack.name }}
+  ansible.builtin.template:
+    src: "{{ stacks_dir }}/{{ stack.name }}/{{ item }}"
+    dest: "{{ stacks_dir }}/{{ stack.name }}/{{ item | regex_replace('\\.j2$', '') }}"
+    mode: "0644"
+    owner: "1000"
+    group: "1000"
+  loop: "{{ stack.templates | default([]) }}"
+  loop_control:
+    label: "{{ item }}"
+
 - name: Set default excludes
   ansible.builtin.set_fact:
     base_excludes:
@@ -23,6 +34,7 @@
       - "docker-compose.yml"
       - "compose.yaml"
       - "compose.yml"
+      - "*.j2"
 
 - name: Calculate config hashes for {{ stack.name }}
   ansible.builtin.find:

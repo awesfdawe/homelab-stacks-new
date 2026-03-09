@@ -12,6 +12,8 @@
         config_excludes:
           - "users_database.yml"
           - "dynamic"
+        templates:
+          - traefik/dynamic/middlewares.yaml.j2
         volumes:
           - /mnt/docker-volumes/traefik/acme
           - /mnt/docker-volumes/traefik/logs

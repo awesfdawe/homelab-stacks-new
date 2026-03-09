@@ -2,5 +2,20 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "stacks/remnawave/**"
+      ],
+      "matchPackageNames": [
+        "postgres",
+        "valkey/valkey"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    }
   ]
 }
