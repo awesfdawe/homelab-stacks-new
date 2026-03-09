@@ -1,0 +1,79 @@
+- name: Install restic and dependencies
+  ansible.builtin.apt:
+    name:
+      - restic
+      - rsync
+      - yq
+    state: present
+    update_cache: true
+
+- name: Ensure primary backup directory exists
+  ansible.builtin.file:
+    path: "{{ restic_primary_repo }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Ensure mirror backup directory exists
+  ansible.builtin.file:
+    path: "{{ restic_mirror_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  when: restic_mirror_path is defined and restic_mirror_path | length > 0
+
+- name: Check if restic repo is initialized
+  ansible.builtin.command:
+    cmd: restic -r "{{ restic_primary_repo }}" cat config
+  environment:
+    RESTIC_PASSWORD: "{{ restic_password }}"
+  register: restic_check
+  changed_when: false
+  failed_when: false
+
+- name: Initialize restic repository
+  ansible.builtin.command:
+    cmd: restic -r "{{ restic_primary_repo }}" init
+  environment:
+    RESTIC_PASSWORD: "{{ restic_password }}"
+  when: restic_check.rc != 0
+
+- name: Deploy restic-backup systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/restic-backup.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Restic backup for homelab stacks
+      After=docker.service
+
+      [Service]
+      Type=oneshot
+      ExecStart={{ playbook_dir }}/../scripts/restic-backup.sh
+      Nice=19
+      IOSchedulingClass=idle
+
+- name: Deploy restic-backup systemd timer
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/restic-backup.timer
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Daily restic backup
+
+      [Timer]
+      OnCalendar=*-*-* 05:00:00
+      Persistent=true
+      RandomizedDelaySec=300
+
+      [Install]
+      WantedBy=timers.target
+
+- name: Enable and start restic-backup timer
+  ansible.builtin.systemd:
+    name: restic-backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true

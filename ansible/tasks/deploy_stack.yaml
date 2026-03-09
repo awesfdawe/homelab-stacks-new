@@ -1,19 +1,21 @@
 - name: Check if volume directories exist for {{ stack.name }}
   ansible.builtin.stat:
-    path: "{{ item }}"
+    path: "{{ item.path | default(item) }}"
   loop: "{{ stack.volumes | default([]) }}"
+  loop_control:
+    label: "{{ item.path | default(item) }}"
   register: volume_dirs
 
 - name: Create volume directories for {{ stack.name }}
   ansible.builtin.file:
-    path: "{{ item.item }}"
+    path: "{{ item.item.path | default(item.item) }}"
     state: directory
     owner: "1000"
     group: "1000"
     mode: "0750"
   loop: "{{ volume_dirs.results }}"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item.item.path | default(item.item) }}"
   when: not item.stat.exists
 
 - name: Render config templates for {{ stack.name }}
