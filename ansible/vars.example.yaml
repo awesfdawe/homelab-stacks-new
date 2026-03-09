@@ -8,10 +8,10 @@
 timezone: "Europe/Kaliningrad"
 domain: "example.com"
 
-
 # =============================================================================
 # Restic Backup
 # =============================================================================
+
 restic_password: "changeme"
 restic_primary_repo: "/mnt/backups/restic"
 restic_mirror_path: "/home/user/backups/restic"
@@ -51,3 +51,9 @@ remnawave_subscription_page_prefix: "changeme"
 remnawave_jwt_auth_secret: "changeme"
 remnawave_api_tokens_secret: "changeme"
 remnawave_api_token: "changeme"
+
+# =============================================================================
+# Mihomo
+# =============================================================================
+
+mihomo_sub_url: "https://changeme"

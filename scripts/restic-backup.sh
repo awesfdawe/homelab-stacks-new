@@ -15,15 +15,15 @@ command -v yq  >/dev/null || { echo "FATAL: yq is not installed";  exit 1; }
 command -v restic >/dev/null || { echo "FATAL: restic is not installed"; exit 1; }
 
 export RESTIC_PASSWORD
-RESTIC_PASSWORD=$(yq '.restic_password' "$VARS")
+RESTIC_PASSWORD=$(yq -r '.restic_password' "$VARS")
 export RESTIC_REPOSITORY
-RESTIC_REPOSITORY=$(yq '.restic_primary_repo' "$VARS")
+RESTIC_REPOSITORY=$(yq -r '.restic_primary_repo' "$VARS")
 
-MIRROR_PATH=$(yq '.restic_mirror_path' "$VARS")
-KEEP_DAILY=$(yq  '.restic_keep_daily  // 7'  "$VARS")
-KEEP_WEEKLY=$(yq '.restic_keep_weekly // 4'  "$VARS")
-KEEP_MONTHLY=$(yq '.restic_keep_monthly // 6' "$VARS")
-KEEP_YEARLY=$(yq '.restic_keep_yearly // 1' "$VARS")
+MIRROR_PATH=$(yq -r '.restic_mirror_path' "$VARS")
+KEEP_DAILY=$(yq -r  '.restic_keep_daily  // 7'  "$VARS")
+KEEP_WEEKLY=$(yq -r '.restic_keep_weekly // 4'  "$VARS")
+KEEP_MONTHLY=$(yq -r '.restic_keep_monthly // 6' "$VARS")
+KEEP_YEARLY=$(yq -r '.restic_keep_yearly // 1' "$VARS")
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
@@ -36,25 +36,19 @@ log "=== Restic backup started ==="
 log "Repository : $RESTIC_REPOSITORY"
 log "Mirror     : $MIRROR_PATH"
 
-STACK_COUNT=$(yq '.[] | .vars.stacks | length' "$PLAYBOOK")
+STACK_COUNT=$(yq -r '.[] | .vars.stacks | length' "$PLAYBOOK")
 
 for i in $(seq 0 $((STACK_COUNT - 1))); do
-  STACK_NAME=$(yq ".[] | .vars.stacks[$i].name" "$PLAYBOOK")
+  STACK_NAME=$(yq -r ".[] | .vars.stacks[$i].name" "$PLAYBOOK")
 
   BACKUP_PATHS=()
-  VOL_COUNT=$(yq ".[] | .vars.stacks[$i].volumes | length // 0" "$PLAYBOOK")
-
-  for j in $(seq 0 $((VOL_COUNT - 1))); do
-    IS_BACKUP=$(yq ".[] | .vars.stacks[$i].volumes[$j].backup // false" "$PLAYBOOK")
-    if [[ "$IS_BACKUP" == "true" ]]; then
-      VOL_PATH=$(yq ".[] | .vars.stacks[$i].volumes[$j].path" "$PLAYBOOK")
-      BACKUP_PATHS+=("$VOL_PATH")
-    fi
-  done
+  while IFS= read -r p; do
+    [[ -n "$p" ]] && BACKUP_PATHS+=("$p")
+  done < <(yq -r ".[] | .vars.stacks[$i].volumes // [] | map(select(type == \"object\" and .backup == true)) | .[].path" "$PLAYBOOK")
 
   [[ ${#BACKUP_PATHS[@]} -eq 0 ]] && continue
 
-  STOP_BEFORE=$(yq ".[] | .vars.stacks[$i].stop_before_backup // true" "$PLAYBOOK")
+  STOP_BEFORE=$(yq -r ".[] | .vars.stacks[$i].stop_before_backup // true" "$PLAYBOOK")
   STACK_DIR="$STACKS_DIR/$STACK_NAME"
   STOPPED=false
 

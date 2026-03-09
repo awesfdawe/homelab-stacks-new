@@ -11,16 +11,16 @@
   ansible.builtin.file:
     path: "{{ restic_primary_repo }}"
     state: directory
-    owner: root
-    group: root
+    owner: "1000"
+    group: "1000"
     mode: "0700"
 
 - name: Ensure mirror backup directory exists
   ansible.builtin.file:
     path: "{{ restic_mirror_path }}"
     state: directory
-    owner: root
-    group: root
+    owner: "1000"
+    group: "1000"
     mode: "0700"
   when: restic_mirror_path is defined and restic_mirror_path | length > 0
 
