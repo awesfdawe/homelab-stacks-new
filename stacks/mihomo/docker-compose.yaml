@@ -1,0 +1,17 @@
+networks:
+  bypass:
+    external: true
+
+services:
+  mihomo:
+    container_name: mihomo
+    image: metacubex/mihomo:v1.19.20
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/root/.config/mihomo/config.yaml
+    environment:
+      - TZ=${TZ}
+    networks:
+      - bypass
+    security_opt:
+      - no-new-privileges:true

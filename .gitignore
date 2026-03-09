@@ -4,3 +4,4 @@ ansible/vars.yaml
 
 # Rendered from .j2 templates
 stacks/reverse-proxy/traefik/dynamic/middlewares.yaml
+stacks/mihomo/config.yaml
