@@ -38,6 +38,10 @@ log "Mirror     : $MIRROR_PATH"
 
 STACK_COUNT=$(yq -r '.[] | .vars.stacks | length' "$PLAYBOOK")
 
+log "--- Repository: $REPO_ROOT ---"
+log "Backing up: $REPO_ROOT"
+restic backup "$REPO_ROOT" --tag "homelab-repo" --exclude ".git" --exclude ".config_hash"
+
 for i in $(seq 0 $((STACK_COUNT - 1))); do
   STACK_NAME=$(yq -r ".[] | .vars.stacks[$i].name" "$PLAYBOOK")
 
