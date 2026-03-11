@@ -38,12 +38,6 @@
         templates:
           - config.yaml.j2
 
-      - name: beszel
-        volumes:
-          - path: /mnt/docker-volumes/beszel/panel
-            backup: true
-          - /mnt/docker-volumes/beszel/agent
-
   tasks:
     # ==========================================================================
     # Infrastructure
