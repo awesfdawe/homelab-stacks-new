@@ -45,12 +45,12 @@ authelia_storage_encryption_key: "changeme"
 # Remnawave
 # =============================================================================
 
-remnawave_subdomain: "changeme"
-remnawave_subscription_page_subdomain: "changeme"
-remnawave_subscription_page_prefix: "changeme"
-remnawave_jwt_auth_secret: "changeme"
-remnawave_api_tokens_secret: "changeme"
-remnawave_api_token: "changeme"
+remnawave_subdomain: "changeme" # Поддомен для панели. remnawave_subdomain.domain -> remnawave_subdomain.example.com
+remnawave_subscription_page_subdomain: "changeme" # Поддомен для страницы подписок. remnawave_subscription_page_subdomain.domain -> remnawave_subscription_page_subdomain.example.com
+remnawave_subscription_page_prefix: "changeme" # Рандомный путь, можно сгенерировать через openssl rand -hex 24 (чем длиннее, тем лучше)
+remnawave_jwt_auth_secret: "changeme" # Обязательно сгенерировать через openssl rand -hex 64
+remnawave_api_tokens_secret: "changeme" # Обязательно сгенерировать через openssl rand -hex 64
+remnawave_api_token: "changeme" # Токен из настроек Remnawave -> API-токены (создается после первого запуска)
 
 # =============================================================================
 # Mihomo
