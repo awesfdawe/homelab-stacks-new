@@ -10,7 +10,7 @@ networks:
 services:
   socket-proxy:
     image: lscr.io/linuxserver/socket-proxy:3.2.14
-    container_name: socket-proxy
+    container_name: socket-proxy-traefik
     restart: unless-stopped
     networks:
       - socket_proxy
