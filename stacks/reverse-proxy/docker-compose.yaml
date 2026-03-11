@@ -9,7 +9,7 @@ networks:
 
 services:
   socket-proxy:
-    image: lscr.io/linuxserver/socket-proxy:3.2.13
+    image: lscr.io/linuxserver/socket-proxy:3.2.14
     container_name: socket-proxy
     restart: unless-stopped
     networks:
