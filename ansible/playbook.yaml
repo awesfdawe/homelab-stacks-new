@@ -38,6 +38,13 @@
         templates:
           - config.yaml.j2
 
+      - name: drasl
+        templates:
+          - config.toml.j2
+        volumes:
+          - path: /mnt/docker-volumes/drasl
+            backup: true
+
   tasks:
     # ==========================================================================
     # Infrastructure

@@ -1,0 +1,23 @@
+networks:
+  proxy:
+    external: true
+
+services:
+  drasl:
+    container_name: drasl
+    image: unmojang/drasl:3.4.3
+    volumes:
+      - ./config.toml:/etc/drasl/config.toml
+      - /mnt/docker-volumes/drasl:/var/lib/drasl
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.drasl.rule=Host(`drasl.${DOMAIN}`)"
+      - "traefik.http.routers.drasl.middlewares=geoblock@file"
+      - "traefik.http.services.drasl.loadbalancer.server.port=25585"
+      - "traefik.http.routers.drasl.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.drasl.tls.domains[0].main=${DOMAIN}"
+      - "traefik.http.routers.drasl.tls.domains[0].sans=*.${DOMAIN}"
+    security_opt:
+      - no-new-privileges:true
