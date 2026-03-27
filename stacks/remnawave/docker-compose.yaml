@@ -44,7 +44,7 @@ services:
       - METRICS_USER=admin
       - METRICS_PASS=admin
       - FRONT_END_DOMAIN=${DOMAIN}
-      - SUB_PUBLIC_DOMAIN=${SUBSCRIPTION_SUBDOMAIN}.${DOMAIN}/${SUBSCRIPTION_PREFIX}
+      - SUB_PUBLIC_DOMAIN=sb.${DOMAIN}/${SUBSCRIPTION_PREFIX}
       - JWT_AUTH_SECRET=${JWT_AUTH_SECRET}
       - JWT_API_TOKENS_SECRET=${JWT_API_TOKENS_SECRET}
     networks:
@@ -58,7 +58,7 @@ services:
       start_period: 30s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.remnawave.rule=Host(`${REMNAWAVE_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.remnawave.rule=Host(`rw.${DOMAIN}`)"
       - "traefik.http.routers.remnawave.middlewares=local-only@file"
       - "traefik.http.services.remnawave.loadbalancer.server.port=3000"
       - "traefik.http.routers.remnawave.tls.certResolver=letsencrypt"
@@ -96,7 +96,7 @@ services:
       - CUSTOM_SUB_PREFIX=${SUBSCRIPTION_PREFIX}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.remnawave-subscription-page.rule=Host(`${SUBSCRIPTION_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.remnawave-subscription-page.rule=Host(`sb.${DOMAIN}`)"
       - "traefik.http.services.remnawave-subscription-page.loadbalancer.server.port=3010"
       - "traefik.http.routers.remnawave-subscription-page.tls.certResolver=letsencrypt"
       - "traefik.http.routers.remnawave-subscription-page.tls.domains[0].main=${DOMAIN}"
