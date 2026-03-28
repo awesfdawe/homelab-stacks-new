@@ -29,7 +29,7 @@ services:
 
   remnawave:
     container_name: remnawave
-    image: remnawave/backend:2.6.4
+    image: remnawave/backend:2.7.2
     restart: unless-stopped
     depends_on:
       remnawave-database:
