@@ -6,3 +6,6 @@ ansible/vars.yaml
 stacks/reverse-proxy/traefik/dynamic/middlewares.yaml
 stacks/mihomo/config.yaml
 stacks/drasl/config.toml
+
+.shared.env
+.sops.yaml
